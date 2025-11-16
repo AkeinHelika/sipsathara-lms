@@ -16,11 +16,8 @@
   </nav>
 
   <main class="app-container">
-    <!-- Pages: Courses | Months | Month Content -->
     <section id="pageCourses" class="page">
-      <div class="page-head">
-        <h2>Courses</h2>
-      </div>
+      <div class="page-head"><h2>Courses</h2></div>
       <div id="coursesGrid" class="grid cards"></div>
     </section>
 
@@ -41,7 +38,7 @@
     </section>
   </main>
 
-  <!-- Auth overlays: login / register -->
+  <!-- Auth overlays -->
   <div id="authOverlay" class="auth-overlay">
     <div id="loginBox" class="auth-box">
       <h3>Student Login</h3>
@@ -77,15 +74,25 @@
   <script src="js/app-auth.js"></script>
   <script src="js/student.js"></script>
   <script>
-    // simple hash routing for auth overlay
-    function showLoginBox(){ document.getElementById('authOverlay').style.display='flex'; document.getElementById('loginBox').classList.remove('hidden'); document.getElementById('registerBox').classList.add('hidden'); }
-    function showRegisterBox(){ document.getElementById('authOverlay').style.display='flex'; document.getElementById('registerBox').classList.remove('hidden'); document.getElementById('loginBox').classList.add('hidden'); }
+    document.addEventListener('DOMContentLoaded', () => {
+      function showLoginBox(){ 
+        document.getElementById('authOverlay').style.display='flex'; 
+        document.getElementById('loginBox').classList.remove('hidden'); 
+        document.getElementById('registerBox').classList.add('hidden'); 
+      }
+      function showRegisterBox(){ 
+        document.getElementById('authOverlay').style.display='flex'; 
+        document.getElementById('registerBox').classList.remove('hidden'); 
+        document.getElementById('loginBox').classList.add('hidden'); 
+      }
 
-    window.addEventListener('hashchange', ()=>{
-      if(location.hash === '#register') showRegisterBox();
-      if(location.hash === '#login' || location.hash === '') showLoginBox();
+      window.addEventListener('hashchange', ()=>{
+        if(location.hash === '#register') showRegisterBox();
+        if(location.hash === '#login' || location.hash === '') showLoginBox();
+      });
+
+      if(location.hash === '#register') showRegisterBox(); else showLoginBox();
     });
-    if(location.hash === '#register') showRegisterBox(); else showLoginBox();
   </script>
 </body>
 </html>
