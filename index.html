@@ -13,7 +13,6 @@
         <h1>Sipsathara Learning Point <span class="brand">LMS</span></h1>
       </div>
       <p class="lead">Student access & course dashboard</p>
-
       <div class="cta">
         <a href="student.html#login" class="btn primary">Student Login</a>
         <a href="student.html#register" class="btn ghost">Student Register</a>
@@ -51,28 +50,29 @@
   <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
   <script src="js/app-auth.js"></script>
   <script>
-    // admin modal flow
-    const adminModal = document.getElementById('adminModal');
-    document.getElementById('adminFooterBtn').onclick = () => adminModal.style.display = 'flex';
-    document.getElementById('closeAdminModal').onclick = () => adminModal.style.display = 'none';
-    document.getElementById('adminCancel').onclick = () => adminModal.style.display = 'none';
+    document.addEventListener('DOMContentLoaded', () => {
+      const adminModal = document.getElementById('adminModal');
+      document.getElementById('adminFooterBtn').onclick = () => adminModal.style.display = 'flex';
+      document.getElementById('closeAdminModal').onclick = () => adminModal.style.display = 'none';
+      document.getElementById('adminCancel').onclick = () => adminModal.style.display = 'none';
 
-    document.getElementById('adminLoginBtn').onclick = async () => {
-      const email = document.getElementById('adminEmail').value.trim();
-      const pw = document.getElementById('adminPw').value;
-      try {
-        await login(email, pw);
-        const ok = await isCurrentUserAdmin();
-        if (!ok) {
-          alert('Access denied — not an admin.');
-          await logout();
-        } else {
-          location.href = 'admin.html';
+      document.getElementById('adminLoginBtn').onclick = async () => {
+        const email = document.getElementById('adminEmail').value.trim();
+        const pw = document.getElementById('adminPw').value;
+        try {
+          await login(email, pw);
+          const ok = await isCurrentUserAdmin();
+          if (!ok) {
+            alert('Access denied — not an admin.');
+            await logout();
+          } else {
+            location.href = 'admin.html';
+          }
+        } catch (err) {
+          alert('Login failed: ' + (err.message || err));
         }
-      } catch (err) {
-        alert('Login failed: ' + (err.message || err));
-      }
-    };
+      };
+    });
   </script>
 </body>
 </html>
