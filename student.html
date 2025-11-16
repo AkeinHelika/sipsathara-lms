@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Student Dashboard — Sipsathara</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <nav class="topnav">
+    <div id="studentGreeting">Student Dashboard</div>
+    <div class="nav-actions">
+      <button id="editProfileBtn" class="btn subtle">Edit Profile</button>
+      <button id="logoutBtn" class="btn ghost">Logout</button>
+    </div>
+  </nav>
+
+  <main class="app-container">
+    <!-- Pages: Courses | Months | Month Content -->
+    <section id="pageCourses" class="page">
+      <div class="page-head">
+        <h2>Courses</h2>
+      </div>
+      <div id="coursesGrid" class="grid cards"></div>
+    </section>
+
+    <section id="pageMonths" class="page hidden">
+      <div class="page-head">
+        <button id="backToCourses" class="btn ghost">← Back</button>
+        <h2 id="courseHeader">Course</h2>
+      </div>
+      <div id="monthsGrid" class="grid cards"></div>
+    </section>
+
+    <section id="pageMonthContent" class="page hidden">
+      <div class="page-head">
+        <button id="backToMonths" class="btn ghost">← Back</button>
+        <h2 id="monthHeader">Month</h2>
+      </div>
+      <div id="daysGrid" class="grid cards"></div>
+    </section>
+  </main>
+
+  <!-- Auth overlays: login / register -->
+  <div id="authOverlay" class="auth-overlay">
+    <div id="loginBox" class="auth-box">
+      <h3>Student Login</h3>
+      <input id="loginEmail" placeholder="Email" />
+      <input id="loginPassword" type="password" placeholder="Password" />
+      <div style="display:flex;gap:8px;">
+        <button id="loginBtn" class="btn primary">Login</button>
+        <a href="#register" class="btn ghost" id="toRegister">Register</a>
+      </div>
+    </div>
+
+    <div id="registerBox" class="auth-box hidden">
+      <h3>Student Register</h3>
+      <input id="regEmail" placeholder="Email" />
+      <input id="regPassword" type="password" placeholder="Password" />
+      <input id="regName" placeholder="Full name" />
+      <input id="regGrade" placeholder="Grade" />
+      <input id="regPhone" placeholder="Phone" />
+      <input id="regWhatsapp" placeholder="WhatsApp no" />
+      <input id="regSchool" placeholder="School" />
+      <input id="regAddress" placeholder="Address" />
+      <div style="display:flex;gap:8px;">
+        <button id="registerBtn" class="btn primary">Create Account</button>
+        <a href="#login" class="btn ghost" id="toLogin">Back to Login</a>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <script src="js/app-auth.js"></script>
+  <script src="js/student.js"></script>
+  <script>
+    // simple hash routing for auth overlay
+    function showLoginBox(){ document.getElementById('authOverlay').style.display='flex'; document.getElementById('loginBox').classList.remove('hidden'); document.getElementById('registerBox').classList.add('hidden'); }
+    function showRegisterBox(){ document.getElementById('authOverlay').style.display='flex'; document.getElementById('registerBox').classList.remove('hidden'); document.getElementById('loginBox').classList.add('hidden'); }
+
+    window.addEventListener('hashchange', ()=>{
+      if(location.hash === '#register') showRegisterBox();
+      if(location.hash === '#login' || location.hash === '') showLoginBox();
+    });
+    if(location.hash === '#register') showRegisterBox(); else showLoginBox();
+  </script>
+</body>
+</html>

@@ -1,0 +1,71 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Admin — Sipsathara LMS</title>
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body>
+  <nav class="topnav">
+    <div>Admin Dashboard</div>
+    <div class="nav-actions">
+      <button id="adminLogout" class="btn ghost">Logout</button>
+    </div>
+  </nav>
+
+  <main class="app-container admin-panel">
+    <section class="card small-card">
+      <h3>Create Course</h3>
+      <input id="courseName" placeholder="Course name" />
+      <input id="courseDesc" placeholder="Course short description" />
+      <input id="courseDate" type="date" placeholder="Start date" />
+      <input id="courseTime" placeholder="Time (e.g. 5:00 PM)" />
+      <input id="courseFee" placeholder="Fee" />
+      <input id="courseTeacher" placeholder="Teacher name" />
+      <button id="createCourseBtn" class="btn primary">Add Course</button>
+    </section>
+
+    <section class="card">
+      <h3>Existing Courses</h3>
+      <div id="adminCoursesList" class="list"></div>
+    </section>
+
+    <section class="card small-card">
+      <h3>Add Admin (manual flow)</h3>
+      <p class="muted">Create the auth user in Firebase Console then paste UID here.</p>
+      <input id="newAdminEmail" placeholder="Admin email" />
+      <input id="newAdminUid" placeholder="Admin UID (from Firebase Auth)" />
+      <button id="addAdminBtn" class="btn primary">Register Admin</button>
+    </section>
+  </main>
+
+  <!-- Course details modal -->
+  <div id="courseModal" class="modal">
+    <div class="modal-panel">
+      <button id="closeCourseModal" class="modal-close">×</button>
+      <h3 id="courseModalTitle">Course</h3>
+      <div style="display:flex;gap:8px;margin-bottom:8px;">
+        <button id="addMonthBtn" class="btn primary">Add Month</button>
+        <button id="viewCourseRequests" class="btn ghost">Course Requests</button>
+      </div>
+      <div id="monthsAdminList" class="list"></div>
+    </div>
+  </div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.1/firebase-firestore-compat.js"></script>
+  <script src="js/app-auth.js"></script>
+  <script src="js/admin.js"></script>
+  <script>
+    // protect admin page
+    firebase.auth().onAuthStateChanged(async u=>{
+      if(!u){ location.href = '/'; return; }
+      if(!(await isCurrentUserAdmin())){ alert('Not an admin'); await logout(); location.href = '/'; }
+      // else admin.js will initialize lists
+    });
+  </script>
+</body>
+</html>
