@@ -60,11 +60,16 @@
   <script src="js/app-auth.js"></script>
   <script src="js/admin.js"></script>
   <script>
-    // protect admin page
-    firebase.auth().onAuthStateChanged(async u=>{
-      if(!u){ location.href = '/'; return; }
-      if(!(await isCurrentUserAdmin())){ alert('Not an admin'); await logout(); location.href = '/'; }
-      // else admin.js will initialize lists
+    document.addEventListener('DOMContentLoaded', () => {
+      // Protect admin page
+      firebase.auth().onAuthStateChanged(async u => {
+        if(!u){ location.href = '/'; return; }
+        if(!(await isCurrentUserAdmin())){
+          alert('Not an admin');
+          await logout();
+          location.href = '/';
+        }
+      });
     });
   </script>
 </body>
