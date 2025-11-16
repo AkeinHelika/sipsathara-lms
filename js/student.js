@@ -1,4 +1,5 @@
 // js/student.js
+
 const coursesGrid = document.getElementById('coursesGrid');
 const monthsGrid = document.getElementById('monthsGrid');
 const daysGrid = document.getElementById('daysGrid');
@@ -17,9 +18,9 @@ let currentCourseName = '';
 let currentMonthId = null;
 let currentMonthName = '';
 
-firebase.auth().onAuthStateChanged(async user=>{
-  if(!user){
-    // show login / register overlay handled via hash
+// Auth state observer
+firebase.auth().onAuthStateChanged(async user => {
+  if (!user) {
     studentGreeting.textContent = 'Student Dashboard';
     showPage('courses');
     loadPublicCourses();
@@ -30,39 +31,43 @@ firebase.auth().onAuthStateChanged(async user=>{
   loadStudentCourses();
 });
 
-// Load courses visible to students
-async function loadPublicCourses(){
+// Load all courses
+async function loadPublicCourses() {
   coursesGrid.innerHTML = '<div class="muted">Loading courses...</div>';
-  const snap = await db.collection('courses').orderBy('createdAt','desc').get();
-  renderCourses(snap);
-}
-async function loadStudentCourses(){
-  coursesGrid.innerHTML = '<div class="muted">Loading courses...</div>';
-  const snap = await db.collection('courses').orderBy('createdAt','desc').get();
+  const snap = await db.collection('courses').orderBy('createdAt', 'desc').get();
   renderCourses(snap);
 }
 
-function renderCourses(snap){
+async function loadStudentCourses() {
+  coursesGrid.innerHTML = '<div class="muted">Loading courses...</div>';
+  const snap = await db.collection('courses').orderBy('createdAt', 'desc').get();
+  renderCourses(snap);
+}
+
+// Render courses grid
+function renderCourses(snap) {
   coursesGrid.innerHTML = '';
-  snap.forEach(doc=>{
+  snap.forEach(doc => {
     const d = doc.data();
-    const card = document.createElement('div'); card.className='card';
+    const card = document.createElement('div'); card.className = 'card';
     const title = document.createElement('h3'); title.textContent = d.name;
     const desc = document.createElement('p'); desc.textContent = d.description || '';
-    const meta = document.createElement('div'); meta.className='muted'; meta.textContent = `${d.teacher || ''} • ${d.courseDate || ''} • ${d.courseTime || ''} • Fee: ${d.courseFee || ''}`;
-    const actions = document.createElement('div'); actions.style.marginTop='8px';
+    const meta = document.createElement('div'); meta.className = 'muted';
+    meta.textContent = `${d.teacher || ''} • ${d.courseDate || ''} • ${d.courseTime || ''} • Fee: ${d.courseFee || ''}`;
+
+    const actions = document.createElement('div'); actions.style.marginTop = '8px';
     const uid = firebase.auth().currentUser?.uid || null;
 
-    // permission check
-    if(uid){
-      db.collection('courses').doc(doc.id).collection('permissions').doc(uid).get().then(pDoc=>{
-        if(pDoc.exists && pDoc.data().granted){
-          const active = document.createElement('span'); active.textContent = 'Activated ✓'; active.className='muted';
-          const viewBtn = document.createElement('button'); viewBtn.className='btn primary'; viewBtn.textContent='View Class'; viewBtn.onclick = ()=> openMonths(doc.id, d.name);
+    if (uid) {
+      db.collection('courses').doc(doc.id).collection('permissions').doc(uid).get().then(pDoc => {
+        if (pDoc.exists && pDoc.data().granted) {
+          const active = document.createElement('span'); active.textContent = 'Activated ✓'; active.className = 'muted';
+          const viewBtn = document.createElement('button'); viewBtn.className = 'btn primary'; viewBtn.textContent = 'View Class';
+          viewBtn.onclick = () => openMonths(doc.id, d.name);
           actions.appendChild(active); actions.appendChild(viewBtn);
         } else {
-          const reqBtn = document.createElement('button'); reqBtn.className='btn ghost'; reqBtn.textContent='Request Permission';
-          reqBtn.onclick = async ()=>{
+          const reqBtn = document.createElement('button'); reqBtn.className = 'btn ghost'; reqBtn.textContent = 'Request Permission';
+          reqBtn.onclick = async () => {
             await db.collection('courses').doc(doc.id).collection('permissions').doc(uid).set({
               requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
               granted: false,
@@ -75,7 +80,7 @@ function renderCourses(snap){
         }
       });
     } else {
-      const loginReq = document.createElement('span'); loginReq.className='muted'; loginReq.textContent = 'Login to request access';
+      const loginReq = document.createElement('span'); loginReq.className = 'muted'; loginReq.textContent = 'Login to request access';
       actions.appendChild(loginReq);
     }
 
@@ -84,29 +89,32 @@ function renderCourses(snap){
   });
 }
 
-// open months of course
-async function openMonths(courseId, courseName){
+// Open months for course
+async function openMonths(courseId, courseName) {
   currentCourseId = courseId; currentCourseName = courseName;
   document.getElementById('courseHeader').textContent = courseName;
   showPage('months');
   monthsGrid.innerHTML = '<div class="muted">Loading months...</div>';
   const snap = await db.collection('courses').doc(courseId).collection('months').orderBy('createdAt','asc').get();
   monthsGrid.innerHTML = '';
+
   const uid = firebase.auth().currentUser?.uid || null;
-  snap.forEach(doc=>{
+  snap.forEach(doc => {
     const md = doc.data();
-    const card = document.createElement('div'); card.className='card';
+    const card = document.createElement('div'); card.className = 'card';
     const title = document.createElement('h4'); title.textContent = md.monthName;
-    const actions = document.createElement('div'); actions.style.marginTop='8px';
+    const actions = document.createElement('div'); actions.style.marginTop = '8px';
+
     if(uid){
-      db.collection('courses').doc(courseId).collection('months').doc(doc.id).collection('permissions').doc(uid).get().then(mperm=>{
+      db.collection('courses').doc(courseId).collection('months').doc(doc.id).collection('permissions').doc(uid).get().then(mperm => {
         if(mperm.exists && mperm.data().granted){
           const active = document.createElement('span'); active.textContent='Activated ✓'; active.className='muted';
-          const viewBtn = document.createElement('button'); viewBtn.className='btn primary'; viewBtn.textContent='View'; viewBtn.onclick = ()=> openMonthContent(courseId, doc.id, md.monthName);
+          const viewBtn = document.createElement('button'); viewBtn.className='btn primary'; viewBtn.textContent='View';
+          viewBtn.onclick = () => openMonthContent(courseId, doc.id, md.monthName);
           actions.appendChild(active); actions.appendChild(viewBtn);
         } else {
           const reqBtn = document.createElement('button'); reqBtn.className='btn ghost'; reqBtn.textContent='Request Month';
-          reqBtn.onclick = async ()=>{
+          reqBtn.onclick = async () => {
             await db.collection('courses').doc(courseId).collection('months').doc(doc.id).collection('permissions').doc(uid).set({
               requestedAt: firebase.firestore.FieldValue.serverTimestamp(),
               granted: false,
@@ -122,31 +130,34 @@ async function openMonths(courseId, courseName){
       const info = document.createElement('span'); info.className='muted'; info.textContent='Login required';
       actions.appendChild(info);
     }
+
     card.appendChild(title); card.appendChild(actions); monthsGrid.appendChild(card);
   });
 }
 
-// open month content
-async function openMonthContent(courseId, monthId, monthName){
+// Open month content
+async function openMonthContent(courseId, monthId, monthName) {
   currentMonthId = monthId; currentMonthName = monthName;
   document.getElementById('monthHeader').textContent = `${currentCourseName} · ${monthName}`;
   showPage('monthContent');
   daysGrid.innerHTML = '<div class="muted">Loading content...</div>';
+
   const snap = await db.collection('courses').doc(courseId).collection('months').doc(monthId).collection('days').orderBy('dayIndex','asc').get();
   daysGrid.innerHTML = '';
   const uid = firebase.auth().currentUser?.uid || null;
-  // check month permission
+
   const permDoc = uid ? await db.collection('courses').doc(courseId).collection('months').doc(monthId).collection('permissions').doc(uid).get() : null;
   const hasAccess = permDoc?.exists && permDoc.data().granted;
-  snap.forEach(doc=>{
+
+  snap.forEach(doc => {
     const d = doc.data();
     const card = document.createElement('div'); card.className='card';
     const title = document.createElement('h4'); title.textContent = d.dayLabel || 'Day';
     const items = document.createElement('div'); items.style.marginTop='8px';
-    // live
+
     if(d.liveUrl){
       const liveBtn = document.createElement('button'); liveBtn.className='btn primary'; liveBtn.textContent='Live Class';
-      liveBtn.onclick = ()=> {
+      liveBtn.onclick = () => {
         if(!hasAccess) return alert('Month not activated for you.');
         window.open(d.liveUrl, '_blank');
       };
@@ -160,29 +171,33 @@ async function openMonthContent(courseId, monthId, monthName){
       const note = document.createElement('div'); note.className='muted'; note.textContent='Unlock month to access content';
       items.appendChild(note);
     }
+
     card.appendChild(title); card.appendChild(items); daysGrid.appendChild(card);
   });
 }
 
-// UI helpers
-function showPage(name){
-  pageCourses.classList.toggle('hidden', name!=='courses');
-  pageMonths.classList.toggle('hidden', name!=='months');
-  pageMonthContent.classList.toggle('hidden', name!=='monthContent');
+// Show/hide pages
+function showPage(name) {
+  pageCourses.classList.toggle('hidden', name !== 'courses');
+  pageMonths.classList.toggle('hidden', name !== 'months');
+  pageMonthContent.classList.toggle('hidden', name !== 'monthContent');
 }
 
-// navigation handlers
-document.getElementById('backToCourses').onclick = ()=> showPage('courses');
-document.getElementById('backToMonths').onclick = ()=> showPage('months');
+// Navigation buttons
+document.getElementById('backToCourses').onclick = () => showPage('courses');
+document.getElementById('backToMonths').onclick = () => showPage('months');
 
-document.getElementById('loginBtn').onclick = async ()=>{
+// Login button
+loginBtn.onclick = async () => {
   try {
     await login(document.getElementById('loginEmail').value, document.getElementById('loginPassword').value);
     location.hash = '';
     location.reload();
-  } catch (e){ alert('Login failed: '+e.message); }
+  } catch(e){ alert('Login failed: '+e.message); }
 };
-document.getElementById('registerBtn').onclick = async ()=>{
+
+// Register button
+registerBtn.onclick = async () => {
   try {
     await registerStudent(document.getElementById('regEmail').value, document.getElementById('regPassword').value, {
       name: document.getElementById('regName').value,
@@ -195,7 +210,8 @@ document.getElementById('registerBtn').onclick = async ()=>{
     alert('Account created. Please login.');
     location.hash = '#login';
     location.reload();
-  } catch (e){ alert('Register failed: ' + e.message); }
+  } catch(e){ alert('Register failed: '+e.message); }
 };
 
-document.getElementById('logoutBtn').onclick = async ()=> { await logout(); location.href = '/'; };
+// Logout
+logoutBtn.onclick = async () => { await logout(); location.href = '/'; };
